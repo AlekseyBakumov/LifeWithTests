@@ -395,7 +395,6 @@ public:
     }
     void Tick()
     {
-	std::cout << _field_ptr << std::endl;
         scanField();
         applyCellOpsQueue();
     }
