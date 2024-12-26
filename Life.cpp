@@ -50,13 +50,13 @@ private:
     int n, m;
 
     // Initialize field NxM
-    void createField(int n, int m)
+    void createField(int _n, int _m)
     {
-        this->n = n;
-        this->m = m;
-        _field = new bool* [n];
-        for (int i = 0; i < n; i++)
-            _field[i] = new bool[m];
+        this->n = _n;
+        this->m = _m;
+        _field = new bool* [_n];
+        for (int i = 0; i < _n; i++)
+            _field[i] = new bool[_m];
     }
 
 public:
@@ -68,36 +68,36 @@ public:
         createField(10, 10);
     }
     // Field with size = NxM
-    Field(int n, int m)
+    Field(int _n, int _m)
     {
-        createField(n, m);
+        createField(_n, _m);
     }
 
 #pragma endregion
 
-    void DefaultPreset() 
+    void DefaultPreset()
     {
         Clear();
 
-        setAt(0, -1, true);
-        setAt(1, 0, true);
-        setAt(-1, 1, true);
-        setAt(0, 1, true);
-        setAt(1, 1, true);
+        setAt(3, 2, true);
+        setAt(4, 3, true);
+        setAt(2, 4, true);
+        setAt(3, 4, true);
+        setAt(4, 4, true);
     }
 
     void Clear()
     {
-        for (int i = 0; i < n; i++)
-            for (int j = 0; j < m; j++)
+        for (int i = 0; i < this->n; i++)
+            for (int j = 0; j < this->m; j++)
                 _field[i][j] = false;
     }
 
     void Draw()
     {
-        for (int i = 0; i < n; i++)
+        for (int i = 0; i < this->n; i++)
         {
-            for (int j = 0; j < m; j++)
+            for (int j = 0; j < this->m; j++)
                 std::cout << (getAt(i,j) ? ACTIVE_CELL_CHAR : DEAD_CELL_CHAR);
             std::cout << END_OF_FIELD_CHAR << std::endl;
         }
@@ -114,22 +114,20 @@ public:
     //      (x =  N) => (x = 0)
     // Same for y
 
-    int getN()        { return n; }
-    int getM()        { return m; }
+    int getN()        { return this->n; }
+    int getM()        { return this->m; }
     int normalizeX(int x, bool is_y = false) 
     {
-        int border = n;
-        int sign = 1;
-        if (is_y) border = m;
-        if (x < 0) sign = -1;
+        int border = this->n;
+        if (is_y) border = this->m;
 
         int res = x - border * (int)(x / border);
         if (res < 0) res += border;
         return res;
     }
     int normalizeY(int y) { return normalizeX(y, true); }
-    bool getAt(int x, int y) { return _field[normalizeX(x)][normalizeY(y)]; }
-    void setAt(int x, int y, bool val) { _field[normalizeX(x)][normalizeY(y)] = val; }
+    bool getAt(int x, int y) { return this->_field[normalizeX(x)][normalizeY(y)]; }
+    void setAt(int x, int y, bool val) { this->_field[normalizeX(x)][normalizeY(y)] = val; }
     //bool** getField() { return _field; }
 
 #pragma endregion
@@ -269,7 +267,7 @@ public:
 class Logic 
 {
 private:
-    Field* _field_ptr = nullptr;
+    Field* _field_ptr;
     std::queue<CellOp*> ops_q;
     int b, s;
     std::vector<std::string> load_messages;
@@ -341,7 +339,7 @@ private:
     // and updates field
     void applyCellOpsQueue()
     {
-        for (; !ops_q.empty(); ops_q.pop())
+        for (; !ops_q.empty() > 0; ops_q.pop())
         {
             CellOp* op = ops_q.front();
             if (_field_ptr->getAt(op->x, op->y) == op->val)
@@ -391,8 +389,13 @@ public:
     {
         _field_ptr = field;
     }
+    Field* GetField()
+    {
+        return _field_ptr;
+    }
     void Tick()
     {
+	std::cout << _field_ptr << std::endl;
         scanField();
         applyCellOpsQueue();
     }
